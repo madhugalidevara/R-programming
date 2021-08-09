@@ -1,0 +1,521 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+ 
+
+```{r}
+players<-read.csv('data.csv')
+str(players)
+```
+
+cheking null values
+
+```{r}
+require(dplyr)
+require(ggplot2)
+colSums(is.na(players))
+```
+
+
+we have almost 48 na values in every column so we remove that rows.
+```{r}
+df<- na.omit(players)
+```
+
+
+
+```{r}
+sum(is.na(df))
+```
+
+
+```{r}
+
+  
+df$Height <-  as.numeric(gsub(' ', ".", gsub("'", '.', df$Height)))
+
+```
+
+
+```{r}
+head(df$Height)
+class(df$Height)
+```
+
+```{r}
+df$Weight  <- as.numeric(gsub(' ', ".", gsub("lbs", '.', df$Weight)))
+head(df$Weight)
+
+```
+
+ls
+```{r}
+ df$LS<- round(as.numeric(gsub("[\\+,]", ".", df$LS)))
+median(df$LS,na.rm = T)
+```
+
+
+```{r}
+df$LS[which(is.na(df$LS))]<- 58
+```
+
+```{r}
+mode <- function(x, na.rm = FALSE) {
+  if(na.rm){
+    x = x[!is.na(x)]
+  }
+
+  ux <- unique(x)
+  return(ux[which.max(tabulate(match(x, ux)))])
+}
+mode(df$LS,na.rm = T)
+```
+
+```{r}
+ df$ST<- round(as.numeric(gsub("[\\+,]", ".", df$ST)))
+
+median(df$ST,na.rm = T)
+```
+
+```{r}
+df$ST[which(is.na(df$ST))]<- 58
+```
+
+
+
+```{r}
+ df$RS<- round(as.numeric(gsub("[\\+,]", ".", df$RS)))
+
+median(df$RS,na.rm = T)
+```
+
+```{r}
+df$RS[which(is.na(df$RS))]<-58
+```
+
+
+```{r}
+ df$LW<- round(as.numeric(gsub("[\\+,]", ".", df$LW)))
+
+median(df$LW,na.rm = T)
+df$LW[which(is.na(df$LW))]<- 61
+```
+
+
+```{r}
+ df$LF<- round(as.numeric(gsub("[\\+,]", ".", df$LF)))
+
+median(df$LF,na.rm = T)
+df$LF[which(is.na(df$LF))]<- 61
+```
+
+
+```{r}
+ df$CF<- round(as.numeric(gsub("[\\+,]", ".", df$CF)))
+median(df$CF,na.rm = T)
+df$CF[which(is.na(df$CF))]<- 60
+```
+
+```{r}
+ df$RF<- round(as.numeric(gsub("[\\+,]", ".", df$RF)))
+median(df$RF,na.rm = T)
+df$RF[which(is.na(df$RF))]<- 60
+```
+
+```{r}
+ df$RW<- round(as.numeric(gsub("[\\+,]", ".", df$RW)))
+median(df$RW,na.rm = T)
+df$RW[which(is.na(df$RW))]<- 61
+```
+
+```{r}
+ df$LAM<- round(as.numeric(gsub("[\\+,]", ".", df$LAM)))
+median(df$LAM,na.rm = T)
+df$LAM[which(is.na(df$LAM))]<- 61
+```
+
+```{r}
+ df$CAM<- round(as.numeric(gsub("[\\+,]", ".", df$CAM)))
+median(df$CAM,na.rm = T)
+df$CAM[which(is.na(df$CAM))]<- 61
+```
+
+```{r}
+ df$RAM<- round(as.numeric(gsub("[\\+,]", ".", df$RAM)))
+median(df$RAM,na.rm = T)
+df$RAM[which(is.na(df$RAM))]<- 61
+```
+
+
+```{r}
+ df$LM<- round(as.numeric(gsub("[\\+,]", ".", df$LM)))
+median(df$LM,na.rm = T)
+df$LM[which(is.na(df$LM))]<- 61
+```
+
+
+```{r}
+ df$LCM<- round(as.numeric(gsub("[\\+,]", ".", df$LCM)))
+median(df$LCM,na.rm = T)
+df$LCM[which(is.na(df$LCM))]<- 59
+```
+
+```{r}
+ df$CM<- round(as.numeric(gsub("[\\+,]", ".", df$CM)))
+median(df$CM,na.rm = T)
+df$CM[which(is.na(df$CM))]<- 58
+```
+
+
+```{r}
+ df$RCM<- round(as.numeric(gsub("[\\+,]", ".", df$RCM)))
+median(df$RCM,na.rm = T)
+df$RCM[which(is.na(df$RCM))]<- 58
+```
+
+```{r}
+ df$RM<- round(as.numeric(gsub("[\\+,]", ".", df$RM)))
+median(df$RM,na.rm = T)
+df$RM[which(is.na(df$RM))]<- 61
+```
+
+```{r}
+ df$LWB<- round(as.numeric(gsub("[\\+,]", ".", df$LWB)))
+median(df$LWB,na.rm = T)
+df$LWB[which(is.na(df$LWB))]<- 61
+```
+
+
+```{r}
+ df$LDM<- round(as.numeric(gsub("[\\+,]", ".", df$LDM)))
+median(df$LDM,na.rm = T)
+df$LDM[which(is.na(df$LDM))]<- 59
+```
+
+```{r}
+ df$CDM<- round(as.numeric(gsub("[\\+,]", ".", df$CDM)))
+median(df$CDM,na.rm = T)
+df$CDM[which(is.na(df$CDM))]<- 58
+```
+
+```{r}
+df$RDM<- round(as.numeric(gsub("[\\+,]", ".", df$RDM)))
+median(df$RDM,na.rm = T)
+df$RDM[which(is.na(df$RDM))]<- 58
+```
+
+```{r}
+df$RWB<- round(as.numeric(gsub("[\\+,]", ".", df$RWB)))
+median(df$RWB,na.rm = T)
+df$RWB[which(is.na(df$RWB))]<- 58
+```
+
+```{r}
+df$LB<- round(as.numeric(gsub("[\\+,]", ".", df$LB)))
+median(df$LB,na.rm = T)
+df$LB[which(is.na(df$LB))]<- 58
+```
+
+
+
+```{r}
+df$LCB<- round(as.numeric(gsub("[\\+,]", ".", df$LCB)))
+median(df$LCB,na.rm = T)
+df$LCB[which(is.na(df$LCB))]<- 57
+```
+
+
+```{r}
+df$CB<- round(as.numeric(gsub("[\\+,]", ".", df$CB)))
+median(df$CB,na.rm = T)
+df$CB[which(is.na(df$CB))]<- 57
+```
+
+
+```{r}
+df$RCB<- round(as.numeric(gsub("[\\+,]", ".", df$RCB)))
+median(df$RCB,na.rm = T)
+df$RCB[which(is.na(df$RCB))]<- 57
+```
+
+
+
+```{r}
+df$RB<- round(as.numeric(gsub("[\\+,]", ".", df$RB)))
+median(df$RB,na.rm = T)
+df$RB[which(is.na(df$RB))]<- 58
+```
+
+
+```{r}
+df$RAM<- round(as.numeric(gsub("[\\+,]", ".", df$RAM)))
+median(df$RAM,na.rm = T)
+df$RAM[which(is.na(df$RAM))]<- 60
+```
+
+
+```{r}
+df$LWB<- round(as.numeric(gsub("[\\+,]", ".", df$LWB)))
+median(df$LWB,na.rm = T)
+df$LWB[which(is.na(df$LWB))]<- 58
+```
+
+
+```{r}
+colSums(is.na(df))
+```
+
+
+DATA ANALYSIS
+```{r}
+ggplot(df,aes(x=Overall))+geom_histogram(fill='skyblue')+ggtitle('distribution based on overall')
+```
+
+
+
+```{r}
+g_age <- ggplot(data = df, aes(Age))
+g_age + 
+geom_histogram(col="orange", aes(fill = ..count..)) + ggtitle("Distribution based on Age")
+```
+
+
+
+```{r}
+df<-distinct(df)
+
+```
+
+
+
+```{r}
+top_10_nationality<-data.frame(head(sort(table(df$Nationality),decreasing = T),10))
+
+```
+
+
+```{r}
+
+```
+
+
+
+```{r}
+countries_count <- count(df, Nationality)
+top_10_countries <- top_n(countries_count, 10, n)
+top_10_country_names <- top_10_countries$Nationality
+
+country <- filter(df, Nationality == top_10_country_names)
+ggplot(country, aes(x = Nationality)) + 
+geom_bar(col = "orange", aes(fill = ..count..)) + ggtitle("Distribution based on Nationality of Players (Top 10 Countries)")
+```
+
+
+
+```{r}
+df$Photo<-NULL
+df$Flag<-NULL
+df$Club.Logo<-NULL
+```
+
+
+
+```{r}
+df$Wage <- as.numeric(gsub(".*?([0-9]+).*", "\\1", df$Wage))*1000
+```
+
+
+
+```{r}
+df$Value <- as.numeric(gsub(".*?([0-9]+).*", "\\1",df$Value))*1000000
+class(df$value)
+```
+
+```{r}
+df$Release.Clause <- as.numeric(gsub(".*?([0-9]+).*", "\\1",df$Release.Clause))*1000000
+class(df$Release.Clause)
+median(df$Release.Clause,na.rm = T)
+df$Release.Clause[which(is.na(df$Release.Clause))]<- 19
+```
+
+```{r}
+sum(is.na(df$Release.Clause))
+```
+
+
+```{r}
+ggplot(df, aes(y=Position)) + geom_bar(aes(fill=..count..)) + 
+ggtitle("Distribution of players based on preferred position")
+```
+
+
+```{r}
+ggplot(df,aes(x=Value))+geom_histogram(fill='darkgreen')+ggtitle('distribution based on value')
+```
+
+
+
+```{r}
+ggplot(df,aes(x=Wage,y=Potential))+geom_point(col='green')
+```
+
+
+```{r}
+ggplot(df,aes(x=Wage))+geom_histogram(fill='blue')
+```
+
+
+
+```{r}
+ggplot(df,aes(x=Preferred.Foot,y=Potential))+geom_boxplot(fill='darkgreen')
+```
+
+```{r}
+ggplot(df,aes(x=Preferred.Foot,y=Overall))+geom_boxplot(fill='darkgreen')
+```
+
+
+```{r}
+df[,c(4,6,7,9:11,24:86)] <- sapply(df[,c(4,6,7,9:11,24:86)],scale)
+```
+
+checking outliers
+
+
+```{r}
+plot(quantile(df$Overall,seq(0,1,0.01)))
+quantile(df$Overall,seq(0,1,0.01))
+
+```
+
+
+```{r}
+plot(quantile(df$Potential,seq(0,1,0.01)))
+quantile(df$Potential,seq(0,1,0.01))
+```
+
+```{r}
+plot(quantile(df$Value,seq(0,1,0.01)))
+quantile(df$Value,seq(0,1,0.01))
+```
+
+```{r}
+plot(quantile(df$Wage,seq(0,1,0.01)))
+quantile(df$Wage,seq(0,1,0.01))
+df$Wage[df$Wage > 4.32319084]<- 4.32319084
+```
+
+```{r}
+plot(quantile(df$Height,seq(0,1,0.01)))
+quantile(df$Height,seq(0,1,0.01))
+```
+
+
+```{r}
+plot(quantile(df$HeadingAccuracy,seq(0,1,0.01)))
+quantile(df$HeadingAccuracy,seq(0,1,0.01))
+```
+```{r}
+str(df)
+```
+
+
+
+
+```{r}
+final_df <-df[,c(3,4,6,7,9:11,24:86)]
+sum(is.na(final_df$Release.Clause))
+```
+
+
+
+```{r}
+pca_df <- prcomp(final_df[,-1])
+comp <- data.frame(pca_df$x[,1:4])
+
+```
+
+
+```{r}
+
+```
+
+
+```{r}
+
+```
+
+
+```{r}
+e<-rep(0, 20)
+
+ for (k in 1:20) {cluster_k <- kmeans(comp,centers = k,iter.max = 50,nstart = 20)
+ e[k]<-cluster_k$betweenss/cluster_k$totss
+   
+ }
+```
+
+```{r}
+plot(e,type = 'o')
+points(e,col='blue')
+```
+
+```{r}
+set.seed(100)
+cluster_5 <- kmeans(comp,centers = 5,iter.max = 50,nstart = 20)
+```
+
+```{r}
+
+comp$cluster5<- as.factor(cluster_5$cluster)
+table(cluster_5$cluster)
+cluster_5$centers
+```
+
+```{r}
+require(cluster)
+require(factoextra)
+
+
+comp$cluster5 <- as.numeric(comp$cluster5)
+```
+
+
+```{r}
+fviz_cluster(cluster_5,data = comp)
+```
+
+```{r}
+set.seed(101)
+cluster_3 <- kmeans(comp,centers = 3,iter.max = 50,nstart = 20)
+comp$cluster3 <- as.factor(cluster_3$cluster)
+table(cluster_3$cluster)
+cluster_3$centers
+```
+
+
+```{r}
+comp$cluster3 <- as.numeric(comp$cluster3)
+fviz_cluster(cluster_3,data=comp)
+
+```
+
+
+```{r}
+
+cluster_4 <- kmeans(comp,centers = 4,iter.max = 50,nstart = 20)
+comp$cluster4 <- as.factor(cluster_4$cluster)
+table(cluster_4$cluster)
+cluster_4$centers
+```
+
+```{r}
+comp$cluster4 <- as.numeric(comp$cluster4)
+fviz_cluster(cluster_4,data=comp)
+```
+
+```{r}
+
+``
+

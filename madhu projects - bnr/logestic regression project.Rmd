@@ -1,0 +1,195 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+ 
+
+```{r}
+diabetes <-read.csv('diabetes.csv')
+str(diabetes)
+```
+
+***checking missing values and duplicate value
+
+```{r}
+colSums(is.na(diabetes))
+sum(duplicated(diabetes))
+
+```
+
+visual analysis
+```{r}
+require(ggplot2)
+require(dplyr)
+ggplot(diabetes,aes(Outcome))+geom_bar(fill='darkgreen')
+```
+
+```{r}
+table(diabetes$Outcome)
+```
+
+
+
+```{r}
+ggplot(diabetes,aes(x=Pregnancies,fill=as.factor(Outcome)))+geom_bar()
+```
+
+```{r}
+ggplot(diabetes,aes(x=BloodPressure,y=BMI))+geom_point(col='green')
+```
+
+```{r}
+ggplot(diabetes,aes(x=Age,fill=as.factor(Outcome)))+geom_bar()
+```
+
+```{r}
+ggplot(diabetes,aes(x=as.factor(Outcome),y=DiabetesPedigreeFunction))+geom_boxplot(fill='orange')
+```
+
+```{r}
+ggplot(diabetes,aes(x=as.factor(Outcome),y=BloodPressure))+geom_boxplot(fill='darkgreen')
+```
+
+```{r}
+plot(quantile(diabetes$Glucose,seq(0,1,0.01)))
+quantile(diabetes$Glucose,seq(0,1,0.01))
+```
+
+
+```{r}
+plot(quantile(diabetes$BloodPressure,seq(0,1,0.01)))
+quantile(diabetes$BloodPressure,seq(0,1,0.01))
+```
+
+
+```{r}
+plot(quantile(diabetes$SkinThickness,seq(0,1,0.01)))
+quantile(diabetes$SkinThickness,seq(0,1,0.01))
+diabetes$SkinThickness[diabetes$SkinThickness > 51.13] <- 51.13
+```
+
+```{r}
+plot(quantile(diabetes$Insulin,seq(0,1,0.01)))
+quantile(diabetes$Insulin,seq(0,1,0.01))
+diabetes$Insulin[diabetes$Insulin > 519.90] <- 519.90
+```
+
+
+```{r}
+plot(quantile(diabetes$Pregnancies,seq(0,1,0.01)))
+quantile(diabetes$Pregnancies,seq(0,1,0.01))
+```
+
+
+```{r}
+plot(quantile(diabetes$BMI,seq(0,1,0.01)))
+quantile(diabetes$BMI,seq(0,1,0.01))
+```
+
+
+```{r}
+plot(quantile(diabetes$Age,seq(0,1,0.01)))
+quantile(diabetes$Age,seq(0,1,0.01))
+```
+
+
+```{r}
+diabetes[,-9] <- sapply(diabetes[,-9],scale)
+```
+
+
+```{r}
+set.seed(111)
+require(caTools)
+i <- sample.split(diabetes$Outcome,SplitRatio = 0.75)
+train <- diabetes[i,]
+test <- diabetes[!i,]
+```
+
+
+```{r}
+prop.table(table(diabetes$Outcome)) * 100
+```
+
+
+```{r}
+lrm_1 <- glm(Outcome ~ ., data = train, family = 'binomial')
+
+summary(lrm_1)
+```
+
+
+```{r}
+lrm_2 <- step(lrm_1)
+
+summary(lrm_2)
+```
+
+
+
+```{r}
+require(car)
+
+vif(lrm_2)
+```
+
+
+
+```{r}
+summary(lrm_2)
+```
+
+
+```{r}
+test$pred_outcome <- predict(lrm_2, newdata = test, type = 'response')
+
+summary(test$pred_outcome)
+```
+
+
+```{r}
+hist(test$pred_outcome)
+```
+
+
+```{r}
+require(ROCR)
+pred <- prediction(test$pred_outcome,test$Outcome)
+?prediction()
+```
+
+
+```{r}
+evalu <- performance(pred,'acc')
+```
+
+
+
+```{r}
+plot(evalu)
+abline(h = 0.76,v = 0.34)
+```
+```{r}
+pred_sur <- ifelse(test$pred_outcome > 0.34 , 1 , 0)
+```
+
+
+```{r}
+pred_sur <- as.factor(pred_sur)
+test$Outcome <- as.factor(test$Outcome)
+
+```
+
+
+```{r}
+require(caret)
+confusionMatrix(pred_sur,test$Outcome)
+
+```
+
+
+
+
+```{r}
+

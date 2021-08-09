@@ -1,0 +1,118 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+Importing dataset
+
+```{r}
+require(readr)
+
+mushrooms <- read.csv('mushrooms.csv')
+```
+
+```{r}
+str(mushrooms)
+```
+
+```{r}
+require(dplyr)
+
+mushrooms <- mutate_if(mushrooms, is.character, tolower)
+
+mushrooms <- distinct(mushrooms)
+```
+
+
+
+
+
+
+```{r}
+colSums(is.na(mushrooms))
+```
+Not a single column contains missing values.
+
+
+```{r}
+require(ggplot2)
+ggplot(mushrooms,aes(class))+geom_bar(fill='blue')
+```
+
+```{r}
+ggplot(mushrooms,aes(x=gill.size,fill=class))+geom_bar()
+```
+
+
+```{r}
+ggplot(mushrooms,aes(x=gill.color,fill=class))+geom_bar()
+```
+
+
+```{r}
+ggplot(mushrooms,aes(x=stalk.shape,fill=class))+geom_bar()
+```
+
+```{r}
+ggplot(mushrooms,aes(x=veil.type,fill=class))+geom_bar()
+```
+
+
+```{r}
+ggplot(mushrooms,aes(x=population,fill=class))+geom_bar()
+```
+
+
+```{r}
+ggplot(mushrooms,aes(x=habitat,fill=class))+geom_bar()
+```
+
+
+```{r}
+table(mushrooms$class)
+
+round(prop.table(table(mushrooms$class)), 4) * 100
+```
+The target variable is well balanced.
+
+
+Dividing dataset into train and validation dataset.
+```{r}
+library(caTools)
+set.seed(12)
+
+i <- sample.split(mushrooms$class, SplitRatio = 0.75)
+
+train <- mushrooms[i,]
+val <- mushrooms[!i,]
+```
+
+```{r}
+require(rpart)
+
+tree_1 <- rpart(class~., data = train)
+
+summary(tree_1)
+```
+
+```{r}
+require(rpart.plot)
+
+prp(tree_1)
+```
+The model only deciding the class only by usinf 2 variables odor and spore.pr.
+
+
+
+```{r}
+val$pred_class <- predict(tree_1,newdata = val,type = 'class')
+
+summary(val$pred_class)
+```
+```{r}
+require(caret)
+
+confusionMatrix(as.factor(val$pred_class), 
+                as.factor(val$class))
+```
+
+

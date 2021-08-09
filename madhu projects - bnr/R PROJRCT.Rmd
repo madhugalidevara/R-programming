@@ -1,0 +1,344 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+ 
+
+```{r}
+df <- read.csv('Churn.csv')
+str(df)
+```
+
+CHEKING MISSING VALUES
+```{r}
+require(dplyr)
+colSums(is.na(df))
+sum(duplicated(df))
+
+```
+
+
+```{r}
+mean(df$TotalCharges,na.rm = T)
+```
+
+
+```{r}
+ df$TotalCharges[which(is.na(df$TotalCharges))] <- 2283.3
+sum(is.na(df$TotalCharges))
+```
+
+
+```{r}
+df$MultipleLines[which(df$MultipleLines== "No phone service")] <- 'No'
+
+```
+
+
+```{r}
+df$OnlineSecurity[which(df$OnlineSecurity== "No internet service")] <- 'No'
+```
+
+
+```{r}
+df$OnlineBackup[which(df$OnlineBackup== "No internet service")] <- 'No'
+```
+
+
+```{r}
+df$StreamingTV[which(df$StreamingTV== "No internet service")] <- 'No'
+```
+
+
+```{r}
+df$StreamingMovies[which(df$StreamingMovies== "No internet service")] <- 'No'
+```
+
+
+```{r}
+df$DeviceProtection[which(df$DeviceProtection== "No internet service")] <- 'No'
+```
+
+```{r}
+df$TechSupport[which(df$TechSupport== "No internet service")] <- 'No'
+```
+
+
+UNIVARIANT/BIAVARIANT ANALYSIS
+```{r}
+require(ggplot2)
+ggplot(df,aes(Churn)) + geom_bar(fill='darkgreen')
+table(df$Churn)
+```
+
+
+```{r}
+?ifelse
+
+df[,c(4,5,7,8,10:15,17,21)] <- ifelse(df[,c(4,5,7,8,10:15,17,21)]=='Yes',yes = 1,no = 0)
+table(df$OnlineBackup)
+```
+
+```{r}
+ggplot(df,aes(x=SeniorCitizen,fill=as.factor(Churn))) + geom_bar()
+```
+
+
+```{r}
+ggplot(df,aes(x=gender,fill=as.factor(Churn))) + geom_bar()
+```
+
+```{r}
+ggplot(df,aes(x=InternetService,fill=as.factor(Churn))) + geom_bar()
+```
+
+
+```{r}
+ggplot(df,aes(x=Contract,fill=as.factor(Churn))) + geom_bar()
+```
+
+
+```{r}
+ggplot(df,aes(y=PaymentMethod,fill=as.factor(Churn))) + geom_bar()
+```
+
+```{r}
+ggplot(df,aes(x=PhoneService,fill=as.factor(Churn))) + geom_bar()
+```
+
+```{r}
+ggplot(df,aes(x=MultipleLines,fill=as.factor(Churn))) + geom_bar()
+```
+
+```{r}
+ggplot(df,aes(x=Partner,fill=as.factor(Churn))) + geom_bar()
+```
+
+```{r}
+ggplot(df,aes(x=Dependents,fill=as.factor(Churn))) + geom_bar()
+```
+
+```{r}
+ggplot(df,aes(x=StreamingTV,fill=as.factor(Churn))) + geom_bar()
+```
+
+
+```{r}
+ggplot(df,aes(MonthlyCharges)) + geom_histogram(fill='skyblue')
+```
+
+```{r}
+ggplot(df,aes(TotalCharges)) + geom_histogram(fill='skyblue')
+summary(df$TotalCharges)
+```
+
+
+```{r}
+ggplot(df,aes(tenure)) + geom_bar(fill='skyblue')
+summary(df$tenure)
+max(table(df$tenure))
+```
+
+CREATE DUMMIES
+```{r}
+require(dummies)
+df[,c(2,9,16,18)] <- dummy.data.frame(df[,c(2,9,16,18)])
+```
+
+
+APPLYING SCALING
+```{r}
+df[,c(6,7,19,20)] <- sapply(df[,c(6,7,19,20)],scale)
+```
+
+```{r}
+str(df)
+```
+
+CHECKING OUTLIERS
+```{r}
+plot(quantile(df$tenure,seq(0,1,0.01)))
+quantile(df$tenure,seq(0,1,0.01))
+
+```
+
+```{r}
+
+```
+
+
+```{r}
+plot(quantile(df$MonthlyCharges,seq(0,1,0.01)))
+quantile(df$MonthlyCharges,seq(0,1,0.01))
+
+```
+
+
+```{r}
+
+```
+
+
+```{r}
+plot(quantile(df$TotalCharges,seq(0,1,0.01)))
+quantile(df$TotalCharges,seq(0,1,0.01))
+```
+
+```{r}
+
+```
+
+
+
+```{r}
+plot(quantile(df$PhoneService,seq(0,1,0.01)))
+quantile(df$PhoneService,seq(0,1,0.01))
+```
+
+
+```{r}
+df$PhoneService <- NULL
+
+```
+
+ CONVERT TO IMBALANCE TO BALACE BY USING ROSE FUNCTION
+```{r}
+?ROSE
+require(ROSE)
+new_data <- ovun.sample(Churn ~.,data = df,method = 'both',N = 7043)$data
+table(new_data$Churn)
+```
+
+```{r}
+set.seed(111)
+require(caTools)
+i <- sample.split(new_data$Churn,SplitRatio = 0.75)
+train <- new_data[i,]
+test <- new_data[!i,]
+```
+
+
+LOGESTIC REGRESSION MODEL
+```{r}
+lrm_1 <- glm(Churn ~ ., data = train[,-1], family = 'binomial')
+
+summary(lrm_1)
+```
+
+```{r}
+lrm_2 <- step(lrm_1)
+summary(lrm_2)
+```
+
+
+```{r}
+require(car)
+vif(lrm_2)
+
+```
+
+```{r}
+lrm_3 <- glm(formula = Churn ~ SeniorCitizen + Dependents + tenure + MultipleLines + 
+    OnlineSecurity + TechSupport + StreamingTV + StreamingMovies + 
+    Contract + PaperlessBilling + PaymentMethod + 
+    TotalCharges, family = "binomial", data = train[, -1])
+summary(lrm_3)
+```
+
+```{r}
+lrm_4 <- glm(formula = Churn ~ SeniorCitizen + Dependents + tenure + MultipleLines + 
+    OnlineSecurity + TechSupport + StreamingMovies + 
+    Contract + PaperlessBilling + PaymentMethod , 
+    family = "binomial", data = train[, -1])
+summary(lrm_4)
+```
+
+```{r}
+test$pred_churn <- predict(lrm_4, newdata = test, type = 'response')
+
+summary(test$pred_churn)
+```
+
+```{r}
+hist(test$pred_churn)
+```
+
+```{r}
+require(ROCR)
+pred <- prediction(test$pred_churn,test$Churn)
+```
+
+```{r}
+evalu <- performance(pred,'acc')
+```
+
+
+```{r}
+plot(evalu)
+abline(v = 0.44,h = 0.766)
+```
+
+```{r}
+predict_churn <- ifelse(test$pred_churn > 0.44 , 1 , 0)
+```
+
+
+```{r}
+predict_churn <- as.factor(predict_churn)
+test$Churn <- as.factor(test$Churn)
+```
+
+
+```{r}
+require(caret)
+confusionMatrix(predict_churn,test$Churn)
+```
+
+ RANDOM FOREST MODEL
+```{r}
+require(randomForest)
+set.seed(10)
+rf_model <- randomForest(Churn ~ ., train[,-1], ntree = 1000,
+                         do.trace = 50, importance = T)
+```
+
+
+```{r}
+require(rpart.plot)
+require(varImp)
+require(rpart)
+varImpPlot(rf_model)
+```
+
+```{r}
+rf_pred <- predict(rf_model,test,type = 'class')
+
+summary(rf_pred)
+```
+
+```{r}
+test$rf_pred <- rf_pred
+test$predict <- ifelse(test$rf_pred > 0.44 , 1 , 0)
+```
+
+
+```{r}
+
+```
+
+```{r}
+confusionMatrix(test$Churn,as.factor(test$predict))
+```
+random forest has higest accuracy 
+
+
+
+
+
+```{r}
+
+```
+
+```{r}
+```
+

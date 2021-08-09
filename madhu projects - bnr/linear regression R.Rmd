@@ -1,0 +1,166 @@
+---
+title: "linear regression on diamonds"
+output: html_notebook
+---
+```{r}
+require(ggplot2)
+View(diamonds)
+?diamonds
+
+```
+```{r}
+diamond_df <- as.data.frame(diamonds)
+str(diamond_df)
+
+```
+```{r}
+# Fixing factor columns
+require(dplyr)
+diamond_df <- mutate_if(diamond_df, is.factor, as.character)
+str(diamond_df)
+
+
+```
+```{r}
+#Fixing case mismatch
+diamond_df <- mutate_if(diamond_df, is.character, tolower)
+
+head(diamond_df)
+
+
+```
+```{r}
+#checkong duplicates
+sum(duplicated(diamond_df))
+diamond_df<-distinct(diamond_df)
+
+```
+```{r}
+summary(diamond_df$carat)
+```
+```{r}
+hist(diamond_df$carat)
+boxplot(diamond_df$carat)
+```
+```{r}
+quantile(diamond_df$carat,seq(0,1,by=0.01))
+```
+```{r}
+plot(quantile(diamond_df$carat,seq(0,1,by=0.01)))
+```
+```{r}
+diamond_df$carat[which(diamond_df$carat>2.18)]<-2.18
+plot(quantile(diamond_df$carat,seq(0,1,by=0.01)))
+```
+```{r}
+table(diamond_df$cut)
+```
+
+```{r}
+#depth
+
+plot(quantile(diamond_df$depth ,seq(0,1,by = 0.01)))
+quantile(diamond_df$depth ,seq(0,1,by = 0.01))
+
+diamond_df$depth[diamond_df$depth > 65.6] = 65.6
+
+diamond_df$depth[diamond_df$depth < 57.9] = 57.9
+
+```
+```{r}
+#table
+quantile(diamond_df$table , seq(0,1,0.01))
+
+plot(quantile(diamond_df$table , seq(0,1,0.01)))
+
+diamond_df$table[diamond_df$table < 53.0] = 53.0
+
+diamond_df$table[diamond_df$table > 64.0] = 64.0
+
+```
+```{r}
+#price
+
+quantile(diamond_df$price , seq(0,1,0.01))
+
+plot(quantile(diamond_df$price , seq(0,1,0.01)))
+
+```
+```{r}
+#x
+quantile(diamond_df$x , seq(0,1,0.01))
+plot(quantile(diamond_df$x , seq(0,1,0.01)))
+
+diamond_df$x[diamond_df$x < 4.0200]= 4.0200
+diamond_df$x[diamond_df$x > 8.3500]= 8.3500
+
+```
+```{r}
+quantile(diamond_df$y , seq(0,1,0.01))
+plot(quantile(diamond_df$y , seq(0,1,0.01)))
+
+diamond_df$y[diamond_df$y < 4.0400]= 4.0400
+diamond_df$y[diamond_df$y > 8.3300]= 8.3300
+
+```
+```{r}
+#z
+
+quantile(diamond_df$z , seq(0,1,0.01))
+plot(quantile(diamond_df$z , seq(0,1,0.1)))
+
+```
+```{r}
+diamond_df$z[diamond_df$z > 5.15]= 5.15
+diamond_df$z[diamond_df$z < 2.48]= 2.48
+```
+```{r}
+summary(diamond_df)
+```
+```{r}
+require(dummies)
+final_data<- dummy.data.frame(diamond_df)
+```
+```{r}
+cor_mat<- round(cor(final_data),2)
+head(cor_mat)
+```
+
+```{r}
+require(corrplot)
+corrplot(cor_mat,method='color',type='upper')
+```
+```{r}
+set.seed(111)
+
+i <- sample(nrow(final_data), 0.75 * nrow(final_data))
+
+trn_df <- final_data[ i , ]
+
+val_df <- final_data[ -i, ]
+
+```
+
+```{r}
+lrm_1 <- lm(price ~ ., data = trn_df )
+
+summary(lrm_1)
+
+```
+```{r}
+lrm_2 <- step(lrm_1)
+summary(lrm_2)
+```
+```{r}
+#variance inflation factor
+require(car)
+sort(vif(lrm_2))
+```
+```{r}
+lmr_3<-lm(formula = price ~ carat + cutfair +  cutgood + cutideal + cutpremium + 
+          colord + colore + colorf + colorg + colorh + colori + clarityi1 + 
+          clarityif + claritysi1 + claritysi2 + clarityvs1 + clarityvs2 + 
+          depth + table + y, data = trn_df)
+summary(lmr_3)
+```
+

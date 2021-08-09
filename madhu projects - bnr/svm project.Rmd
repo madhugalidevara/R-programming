@@ -1,0 +1,142 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+ 
+
+```{r}
+df <- read.csv2('bank-additional-full.csv')
+str(df)
+```
+
+
+```{r}
+require(dplyr)
+sum(is.na(df))
+sum(duplicated(df))
+df <- mutate_if(df, is.character, tolower)
+```
+
+```{r}
+df<- distinct(df)
+```
+
+uni/biavaraient analysis
+```{r}
+require(ggplot2)
+ggplot(df,aes(y))+geom_bar(fill='skyblue')
+```
+data was imbalanced
+
+```{r}
+ggplot(df,aes(y=job,fill=y))+geom_bar()
+```
+
+
+```{r}
+ggplot(df,aes(age))+geom_histogram(fill='darkgreen')
+```
+
+```{r}
+ggplot(df,aes(housing,fill=y))+geom_bar()
+```
+
+
+```{r}
+ggplot(df,aes(loan,fill=y))+geom_bar()
+```
+
+```{r}
+ggplot(df,aes(default,fill=y))+geom_bar()+ggtitle('distribution based on has credit in default')
+```
+
+```{r}
+ggplot(df,aes(pdays))+geom_histogram(fill='skyblue')+ggtitle('distribution on pdays (999) means 
+client was not previously contacted')
+```
+so most of people was not previously contacted 
+
+
+```{r}
+ggplot(df,aes(x=duration,y=age))+geom_point()+ggtitle('comparision between age and contact duration in seconds')
+```
+25-55 age gruop people are have contact duration
+
+```{r}
+df[,c(17:20)]<- as.numeric(gsub(".*?([0-9]+).*", "\\1",df[,c(17:20)]))
+colSums(is.na(df))
+```
+
+```{r}
+df[,c(1,11,12,13,17,18,19,20)] <- sapply(df[,c(1,11,12,13,17,18,19,20)],scale)
+```
+
+
+```{r}
+df$education<- NULL
+df$month<- NULL
+df$day_of_week<- NULL
+df$previous<- NULL
+df$poutcome<- NULL
+df$emp.var.rate<- NULL
+
+```
+
+
+```{r}
+df$y<- ifelse(df$y=='yes',1,0)
+table(df$y)
+```
+
+```{r}
+require(dummies)
+df[,c(2:7)] <- dummy.data.frame(df[,c(2:7)])
+```
+
+
+```{r}
+require(ROSE)
+?ROSE
+df <- ovun.sample(y~.,data = df,method = 'both',N = 41176)$data
+```
+
+```{r}
+table(df$y)
+```
+
+```{r}
+require(caTools)
+set.seed(125)
+i <- sample.split(df$y,SplitRatio = 0.75)
+train <- df[i,]
+test <- df[!i,]
+train$y <- as.factor(train$y) 
+```
+
+
+```{r}
+require(e1071)
+model <- svm(y~., data = train,kernel = 'linear')
+```
+
+
+```{r}
+summary(model)
+```
+
+
+```{r}
+test$y <- as.factor(test$y)
+pred <- predict(model,test)
+```
+
+
+```{r}
+table(predicted=pred,actual=test$y)
+```
+
+```{r}
+require(caret)
+confusionMatrix(pred, test$y, positive = "1")
+```
+
